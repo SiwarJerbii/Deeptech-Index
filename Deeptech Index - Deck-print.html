@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deeptech Index 2025 — Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<style>
+  deck-stage:not(:defined){visibility:hidden}
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f6f8fb; --panel:#ffffff; --ink:#0d1422; --ink-2:#3d4860; --ink-3:#73809a;
+    --line:#e3e8f0; --line-2:#eef1f6;
+    --navy:#0b1f3a; --blue:#163e8c; --blue-bright:#2563eb; --blue-soft:#eaf0fb;
+  }
+  body{background:#0a0e16;font-family:"IBM Plex Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  section{background:var(--bg);color:var(--ink);overflow:hidden}
+  .display{font-family:"Space Grotesk",sans-serif}
+  .mono{font-family:"IBM Plex Mono",monospace}
+
+  /* shared slide scaffolding */
+  .slide-pad{position:absolute;inset:0;padding:88px 104px}
+  .shead{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:24px}
+  .shead .stag{font-family:"IBM Plex Mono";font-size:19px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue-bright);font-weight:500}
+  .shead h2{font-family:"Space Grotesk";font-weight:600;font-size:54px;letter-spacing:-.02em;line-height:1.02;margin-top:14px}
+  .shead .sno{font-family:"Space Grotesk";font-weight:600;font-size:22px;color:var(--ink-3)}
+  .brandmark{width:46px;height:46px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px}
+  .brandmark i{background:var(--blue);border-radius:2px;opacity:.25}
+  .brandmark i:nth-child(1),.brandmark i:nth-child(5),.brandmark i:nth-child(9){opacity:1}
+  .brandmark i:nth-child(3),.brandmark i:nth-child(7){opacity:.6}
+
+  /* ===== TITLE ===== */
+  .title-slide{background:var(--navy);color:#fff}
+  .title-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(120,150,220,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(120,150,220,.07) 1px,transparent 1px);background-size:64px 64px}
+  .title-glow{position:absolute;top:-200px;right:-100px;width:900px;height:760px;background:radial-gradient(circle,rgba(60,110,230,.22),transparent 62%)}
+  .title-inner{position:absolute;inset:0;padding:104px 104px;display:flex;flex-direction:column;justify-content:space-between}
+  .title-top{display:flex;align-items:center;gap:18px}
+  .title-top .brandmark i{background:#5b8cff}
+  .title-top .bn{font-family:"Space Grotesk";font-weight:600;font-size:26px;letter-spacing:-.01em}
+  .title-top .bn span{color:#7d93bd;font-weight:400}
+  .title-kicker{font-family:"IBM Plex Mono";font-size:22px;letter-spacing:.18em;text-transform:uppercase;color:#7da6f5;margin-bottom:30px}
+  h1.title-h{font-family:"Space Grotesk";font-weight:600;font-size:118px;line-height:.98;letter-spacing:-.035em}
+  h1.title-h em{font-style:normal;color:#7da6f5}
+  .title-lede{margin-top:34px;font-size:30px;line-height:1.5;color:#c4d0e6;max-width:30ch}
+  .title-meta{display:flex;gap:0;border-top:1px solid rgba(255,255,255,.14)}
+  .title-meta .m{padding:26px 56px 0 0;margin-right:56px;border-right:1px solid rgba(255,255,255,.14)}
+  .title-meta .m:last-child{border-right:none}
+  .title-meta .mv{font-family:"Space Grotesk";font-weight:600;font-size:52px;color:#fff;letter-spacing:-.02em}
+  .title-meta .ml{font-size:18px;color:#8aa0c6;margin-top:4px;font-family:"IBM Plex Mono"}
+
+  /* ===== WHAT IS DEEPTECH ===== */
+  .two-col{position:absolute;left:104px;right:104px;top:228px;bottom:88px;display:grid;grid-template-columns:1fr 1.18fr;gap:80px}
+  .def-lede{font-family:"Space Grotesk";font-size:38px;line-height:1.32;font-weight:400;color:var(--ink);letter-spacing:-.01em}
+  .def-lede b{font-weight:600;color:var(--blue)}
+  .def-tags{display:flex;flex-wrap:wrap;gap:12px;margin-top:40px}
+  .def-tags span{font-family:"IBM Plex Mono";font-size:20px;color:var(--blue);background:var(--blue-soft);padding:10px 18px;border-radius:8px}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:16px}
+  .pcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px 26px;display:flex;flex-direction:column;justify-content:center}
+  .pcard .pn{font-family:"IBM Plex Mono";font-size:17px;color:var(--blue-bright)}
+  .pcard h4{font-family:"Space Grotesk";font-weight:600;font-size:26px;margin:8px 0 6px;letter-spacing:-.01em}
+  .pcard p{font-size:17px;color:var(--ink-3);line-height:1.4}
+
+  /* ===== MAP ===== */
+  .map-wrap{position:absolute;left:104px;right:104px;top:228px;bottom:88px;display:grid;grid-template-columns:1fr 440px;gap:64px}
+  #deck-map{width:100%;height:100%;background:var(--panel);border:1px solid var(--line);border-radius:16px}
+  .map-side{display:flex;flex-direction:column}
+  .map-side h3{font-family:"Space Grotesk";font-weight:600;font-size:28px;margin-bottom:6px}
+  .map-side .sub{font-size:18px;color:var(--ink-3);margin-bottom:22px;line-height:1.4}
+  .lead-list{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
+  .lead-list .lr{display:flex;align-items:center;gap:16px;padding:13px 0;border-bottom:1px solid var(--line-2)}
+  .lead-list .lr .rk{font-family:"Space Grotesk";font-weight:600;font-size:22px;color:var(--ink-3);width:40px}
+  .lead-list .lr img{width:38px;border-radius:4px;box-shadow:0 0 0 1px var(--line)}
+  .lead-list .lr .nm{flex:1;font-family:"Space Grotesk";font-weight:500;font-size:22px}
+  .lead-list .lr .sc{font-family:"Space Grotesk";font-weight:600;font-size:22px;color:var(--blue)}
+  .map-legend{margin-top:auto;padding-top:24px}
+  .map-legend .lt{font-family:"IBM Plex Mono";font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:12px}
+  .legend-bar{height:16px;border-radius:8px;background:linear-gradient(90deg,#e6eefb,#163e8c)}
+  .legend-scale{display:flex;justify-content:space-between;margin-top:8px;font-family:"IBM Plex Mono";font-size:16px;color:var(--ink-3)}
+  .dtmap-tip{display:none}
+
+  /* ===== RANKINGS ===== */
+  .rank-wrap{position:absolute;left:104px;right:104px;top:228px;bottom:80px;display:grid;grid-template-columns:1fr 1fr;gap:56px}
+  .rcol{display:flex;flex-direction:column}
+  .rcol-h{display:grid;grid-template-columns:54px 1fr 90px 110px;gap:14px;font-family:"IBM Plex Mono";font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding-bottom:10px;border-bottom:2px solid var(--ink)}
+  .rcol-h .r{text-align:right}
+  .rrow{display:grid;grid-template-columns:54px 1fr 90px 110px;gap:14px;align-items:center;padding:11.5px 0;border-bottom:1px solid var(--line-2)}
+  .rrow .rk{font-family:"Space Grotesk";font-weight:600;font-size:24px;color:var(--ink-3)}
+  .rrow .cy{display:flex;align-items:center;gap:14px;font-family:"Space Grotesk";font-weight:500;font-size:23px}
+  .rrow .cy img{width:34px;border-radius:3px;box-shadow:0 0 0 1px var(--line)}
+  .rrow .ct{font-family:"IBM Plex Mono";font-size:15px;color:var(--ink-3);text-align:right}
+  .rrow .sc{font-family:"Space Grotesk";font-weight:600;font-size:23px;text-align:right}
+  .rrow.eu .sc{color:var(--blue)}
+  .rrow.af .sc{color:#b06a18}
+
+  /* ===== PILLAR LEADERS ===== */
+  .pl-grid{position:absolute;left:104px;right:104px;top:228px;bottom:88px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;gap:22px}
+  .plcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px 32px;display:flex;flex-direction:column}
+  .plcard .pln{font-family:"IBM Plex Mono";font-size:16px;color:var(--blue-bright);letter-spacing:.04em}
+  .plcard h4{font-family:"Space Grotesk";font-weight:600;font-size:27px;margin:8px 0 22px;letter-spacing:-.01em}
+  .plcard .winner{display:flex;align-items:center;gap:16px;padding:14px 16px;background:var(--blue-soft);border-radius:12px;margin-bottom:14px}
+  .plcard .winner img{width:44px;border-radius:4px;box-shadow:0 0 0 1px rgba(13,20,34,.08)}
+  .plcard .winner .wn{flex:1;font-family:"Space Grotesk";font-weight:600;font-size:25px}
+  .plcard .winner .ws{font-family:"Space Grotesk";font-weight:600;font-size:25px;color:var(--blue)}
+  .plcard .runners{display:flex;flex-direction:column;gap:0}
+  .plcard .rr{display:flex;align-items:center;gap:13px;padding:9px 16px;border-bottom:1px solid var(--line-2)}
+  .plcard .rr:last-child{border-bottom:none}
+  .plcard .rr .rrk{font-family:"IBM Plex Mono";font-size:17px;color:var(--ink-3);width:24px}
+  .plcard .rr img{width:28px;border-radius:3px}
+  .plcard .rr .rn{flex:1;font-size:19px;font-weight:500}
+  .plcard .rr .rs{font-family:"IBM Plex Mono";font-size:18px;color:var(--ink-2)}
+
+  /* ===== SPOTLIGHT ===== */
+  .sp-wrap{position:absolute;left:104px;right:104px;top:228px;bottom:88px;display:grid;grid-template-columns:1fr 1fr;gap:72px}
+  .sp-left{display:flex;flex-direction:column}
+  .sp-id{display:flex;align-items:center;gap:24px;margin-bottom:8px}
+  .sp-id img{width:104px;border-radius:8px;box-shadow:0 2px 0 1px rgba(13,20,34,.08),0 16px 36px rgba(13,20,34,.14)}
+  .sp-id h3{font-family:"Space Grotesk";font-weight:600;font-size:62px;letter-spacing:-.025em;line-height:1}
+  .sp-id .badge{display:inline-block;margin-top:10px;font-family:"IBM Plex Mono";font-size:17px;color:var(--blue);background:var(--blue-soft);padding:5px 14px;border-radius:20px}
+  .sp-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:28px 0 30px;background:var(--panel)}
+  .sp-facts .f{padding:20px 22px;border-right:1px solid var(--line)}
+  .sp-facts .f:last-child{border-right:none}
+  .sp-facts .fl{font-family:"IBM Plex Mono";font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
+  .sp-facts .fv{font-family:"Space Grotesk";font-weight:600;font-size:30px;letter-spacing:-.01em}
+  .sw-block{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:auto}
+  .sw-col h5{font-family:"IBM Plex Mono";font-size:15px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+  .sw-col.up h5{color:#15803d}.sw-col.dn h5{color:#c0392b}
+  .sw-col .it{display:flex;align-items:center;gap:11px;font-family:"Space Grotesk";font-weight:500;font-size:21px;padding:8px 0}
+  .sw-col .ic{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:13px;font-weight:700}
+  .sw-col.up .ic{background:#e3f4ea;color:#15803d}.sw-col.dn .ic{background:#fdeaea;color:#c0392b}
+  .sp-right{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:34px;display:flex;flex-direction:column}
+  .sp-right h4{font-family:"IBM Plex Mono";font-size:16px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
+  #sp-radar{flex:1;width:100%}
+
+  /* ===== EUROPE VS AFRICA ===== */
+  .ea-wrap{position:absolute;left:104px;right:104px;top:228px;bottom:88px;display:grid;grid-template-columns:1.7fr 1fr;gap:64px}
+  .ea-chart{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:34px 38px;display:flex;flex-direction:column}
+  .ea-chart .ct{font-family:"Space Grotesk";font-weight:600;font-size:26px;margin-bottom:4px}
+  .ea-chart .cs{font-family:"IBM Plex Mono";font-size:16px;color:var(--ink-3);margin-bottom:18px}
+  #ea-bars{flex:1;width:100%}
+  .ea-right{display:flex;flex-direction:column;justify-content:center;gap:30px}
+  .ea-stat{border-left:4px solid var(--blue);padding-left:24px}
+  .ea-stat .v{font-family:"Space Grotesk";font-weight:600;font-size:78px;letter-spacing:-.03em;line-height:.95;color:var(--blue)}
+  .ea-stat .l{font-size:21px;color:var(--ink-2);margin-top:10px;line-height:1.4}
+  .ea-legend{display:flex;gap:24px;margin-top:8px}
+  .ea-legend .li{display:flex;align-items:center;gap:10px;font-family:"Space Grotesk";font-weight:500;font-size:20px}
+  .ea-legend .sw{width:18px;height:18px;border-radius:5px}
+
+  /* ===== METHODOLOGY ===== */
+  .method-slide{background:var(--navy);color:#fff}
+  .method-slide .shead{border-bottom-color:rgba(255,255,255,.16)}
+  .method-slide .shead .stag{color:#7da6f5}
+  .method-slide .shead .sno{color:#7d93bd}
+  .method-steps{position:absolute;left:104px;right:104px;top:250px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+  .mstep{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:38px 36px}
+  .mstep .mn{font-family:"Space Grotesk";font-weight:600;font-size:30px;color:#7da6f5}
+  .mstep h4{font-family:"Space Grotesk";font-weight:600;font-size:32px;margin:18px 0 16px;letter-spacing:-.01em}
+  .mstep p{font-size:21px;line-height:1.5;color:#c4d0e6}
+  .method-foot{position:absolute;left:104px;right:104px;bottom:88px}
+  .method-foot .sources-l{font-family:"IBM Plex Mono";font-size:16px;letter-spacing:.1em;text-transform:uppercase;color:#7d93bd;margin-bottom:14px}
+  .method-foot .sources{display:flex;flex-wrap:wrap;gap:10px}
+  .method-foot .sources span{font-family:"IBM Plex Mono";font-size:18px;color:#bcd0fb;border:1px solid rgba(255,255,255,.16);padding:8px 16px;border-radius:8px}
+  .method-foot .note{margin-top:22px;font-size:17px;color:#8aa0c6;line-height:1.5;max-width:120ch}
+</style>
+</head>
+<body>
+<deck-stage width="1920" height="1080">
+
+  <!-- 1 · TITLE -->
+  <section class="title-slide" data-label="Title">
+    <div class="title-grid-bg"></div>
+    <div class="title-glow"></div>
+    <div class="title-inner">
+      <div class="title-top">
+        <span class="brandmark"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="bn">Deeptech Index <span>/ 2025</span></span>
+      </div>
+      <div>
+        <div class="title-kicker">Deeptech Attractiveness Index</div>
+        <h1 class="title-h">Where the world<br>builds <em>hard tech.</em></h1>
+        <p class="title-lede">A composite benchmark of 26 countries across Europe and Africa — ranked on their capacity to invent, fund and scale deeptech.</p>
+      </div>
+      <div class="title-meta">
+        <div class="m"><div class="mv">26</div><div class="ml">countries</div></div>
+        <div class="m"><div class="mv">6</div><div class="ml">pillars</div></div>
+        <div class="m"><div class="mv">23</div><div class="ml">indicators</div></div>
+        <div class="m"><div class="mv">2</div><div class="ml">continents</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · WHAT IS DEEPTECH -->
+  <section data-label="What is deeptech">
+    <div class="slide-pad">
+      <div class="shead">
+        <div><div class="stag">01 — Framework</div><h2>What is deeptech — and how we measure it</h2></div>
+        <div class="sno">02 / 08</div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div>
+        <p class="def-lede"><b>Deeptech</b> ventures are built on substantial scientific or engineering advances — where the core risk is whether the technology <i>works</i>, not whether a market exists.</p>
+        <div class="def-tags"><span>Quantum</span><span>Biotech</span><span>Semiconductors</span><span>Robotics</span><span>Advanced materials</span><span>Climate hardware</span></div>
+      </div>
+      <div class="pgrid" id="deck-pgrid"></div>
+    </div>
+  </section>
+
+  <!-- 3 · MAP -->
+  <section data-label="The landscape">
+    <div class="slide-pad">
+      <div class="shead">
+        <div><div class="stag">02 — Geography</div><h2>The deeptech landscape</h2></div>
+        <div class="sno">03 / 08</div>
+      </div>
+    </div>
+    <div class="map-wrap">
+      <div id="deck-map"></div>
+      <div class="map-side">
+        <h3>Europe leads, Africa rising</h3>
+        <div class="sub">Darker blue marks a stronger overall index position. The top ten worldwide:</div>
+        <div class="lead-list" id="deck-leaders"></div>
+        <div class="map-legend">
+          <div class="lt">Index score (z)</div>
+          <div class="legend-bar"></div>
+          <div class="legend-scale"><span id="dlg-min">low</span><span id="dlg-max">high</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · RANKINGS -->
+  <section data-label="Full rankings">
+    <div class="slide-pad">
+      <div class="shead">
+        <div><div class="stag">03 — Rankings</div><h2>The full 26-country ranking</h2></div>
+        <div class="sno">04 / 08</div>
+      </div>
+    </div>
+    <div class="rank-wrap">
+      <div class="rcol">
+        <div class="rcol-h"><span>#</span><span>Country</span><span class="r">Cont.</span><span class="r">Score</span></div>
+        <div id="rank-col-1"></div>
+      </div>
+      <div class="rcol">
+        <div class="rcol-h"><span>#</span><span>Country</span><span class="r">Cont.</span><span class="r">Score</span></div>
+        <div id="rank-col-2"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · PILLAR LEADERS -->
+  <section data-label="Pillar leaders">
+    <div class="slide-pad">
+      <div class="shead">
+        <div><div class="stag">04 — By pillar</div><h2>Who leads each pillar</h2></div>
+        <div class="sno">05 / 08</div>
+      </div>
+    </div>
+    <div class="pl-grid" id="deck-pl"></div>
+  </section>
+
+  <!-- 6 · SPOTLIGHT -->
+  <section data-label="Country spotlight">
+    <div class="slide-pad">
+      <div class="shead">
+        <div><div class="stag">05 — Country spotlight</div><h2>Mauritius · Africa’s frontrunner</h2></div>
+        <div class="sno">06 / 08</div>
+      </div>
+    </div>
+    <div class="sp-wrap">
+      <div class="sp-left">
+        <div class="sp-id">
+          <img src="https://flagcdn.com/w160/mu.png" alt="Mauritius">
+          <div><h3>Mauritius</h3><span class="badge">Africa · #16 overall · #1 in Africa</span></div>
+        </div>
+        <div class="sp-facts">
+          <div class="f"><div class="fl">Population</div><div class="fv">1.2M</div></div>
+          <div class="f"><div class="fl">Index score</div><div class="fv" style="color:var(--blue)">−0.21</div></div>
+          <div class="f"><div class="fl">GDP (nom.)</div><div class="fv">$16B</div></div>
+        </div>
+        <div class="sw-block">
+          <div class="sw-col up"><h5>▲ Strengths</h5>
+            <div class="it"><span class="ic">▲</span>Ecosystem · #6</div>
+            <div class="it"><span class="ic">▲</span>Financial Capacity · #12</div>
+          </div>
+          <div class="sw-col dn"><h5>▼ Relative gaps</h5>
+            <div class="it"><span class="ic">▼</span>Human Capital · #21</div>
+            <div class="it"><span class="ic">▼</span>Policy · #22</div>
+          </div>
+        </div>
+      </div>
+      <div class="sp-right">
+        <h4>Pillar profile vs. panel average</h4>
+        <div id="sp-radar"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · EUROPE VS AFRICA -->
+  <section data-label="Europe vs Africa">
+    <div class="slide-pad">
+      <div class="shead">
+        <div><div class="stag">06 — The gap</div><h2>Europe vs. Africa, pillar by pillar</h2></div>
+        <div class="sno">07 / 08</div>
+      </div>
+    </div>
+    <div class="ea-wrap">
+      <div class="ea-chart">
+        <div class="ct">Average pillar score by continent</div>
+        <div class="cs">Mean z-score across each continent’s countries · 0 = panel average</div>
+        <div id="ea-bars"></div>
+        <div class="ea-legend">
+          <div class="li"><span class="sw" style="background:#163e8c"></span>Europe (15)</div>
+          <div class="li"><span class="sw" style="background:#d98c34"></span>Africa (11)</div>
+        </div>
+      </div>
+      <div class="ea-right">
+        <div class="ea-stat"><div class="v">1.22</div><div class="l">standard deviations separate the average European and African composite score</div></div>
+        <div class="ea-stat"><div class="v">Policy</div><div class="l">is the narrowest gap — Africa’s most competitive pillar relative to Europe</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · METHODOLOGY -->
+  <section class="method-slide" data-label="Methodology">
+    <div class="slide-pad">
+      <div class="shead">
+        <div><div class="stag">07 — Methodology</div><h2>How the index is built</h2></div>
+        <div class="sno">08 / 08</div>
+      </div>
+    </div>
+    <div class="method-steps">
+      <div class="mstep"><div class="mn">01</div><h4>Standardize</h4><p>Each of the 23 indicators is converted to a z-score — distance from the 26-country mean in standard deviations. Zero is exactly average.</p></div>
+      <div class="mstep"><div class="mn">02</div><h4>Aggregate</h4><p>Indicator scores are averaged into six pillars. Sub-pillars (Ecosystem, Policy, Output) are averaged first so each theme carries equal weight.</p></div>
+      <div class="mstep"><div class="mn">03</div><h4>Composite</h4><p>The overall index is the equal-weighted mean of the six pillars. Countries are ranked overall and within their continent.</p></div>
+    </div>
+    <div class="method-foot">
+      <div class="sources-l">Source workbooks</div>
+      <div class="sources"><span>UNESCO</span><span>World Bank</span><span>WIPO</span><span>SCImago</span><span>QS</span><span>OECD</span><span>WJP</span><span>Dealroom</span><span>SIR</span></div>
+      <div class="note">Built on the OECD/JRC Handbook on Constructing Composite Indicators. All scores are z-standardized (mean 0, SD 1); higher is better. GDP figures are indicative World Bank values shown for context only and are not part of the index calculation.</div>
+    </div>
+  </section>
+
+</deck-stage>
+
+<script src="assets/data.js"></script>
+<script src="assets/map.js"></script>
+<script src="assets/charts.js"></script>
+<script src="deck-stage.js"></script>
+<script src="assets/deck-render.js"></script>
+<script>
+(async () => {
+  try { await customElements.whenDefined('deck-stage'); } catch (e) {}
+  const ds = document.querySelector('deck-stage');
+  if (ds) {
+    // Weigh only slide children — same filter as deck-stage.length. Skipping
+    // slotted script/style/template keeps inline Babel/CSS from registering
+    // as stable "content" before the framework has mounted anything.
+    const weigh = () => {
+      let text = 0, media = 0;
+      for (const c of ds.children) {
+        const t = c.tagName;
+        if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+        text += (c.textContent || '').trim().length;
+        media += c.querySelectorAll('img,svg,canvas,video').length;
+      }
+      return text + media * 100;
+    };
+    const deadline = Date.now() + 15000;
+    let last = -1, stable = 0;
+    while (Date.now() < deadline) {
+      const n = weigh();
+      if (n > 0 && n === last) { if (++stable >= 2) break; } else { stable = 0; }
+      last = n;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  try { await document.fonts.ready; } catch (e) {}
+  // Jump every animation to its end state so print() never captures a slide
+  // mid-entrance. Ordering matters: the 0s-transition style must be live
+  // BEFORE data-deck-active is set so attribute-keyed transitions don't
+  // start a (now-0s) run from the pre-active base.
+  const st = document.createElement('style');
+  st.textContent = '*,*::before,*::after{animation-delay:-99s !important;animation-duration:.001s !important;animation-iteration-count:1 !important;animation-fill-mode:both !important;animation-play-state:running !important;transition-duration:0s !important}';
+  document.head.appendChild(st);
+  for (const d of document.querySelectorAll('deck-stage')) {
+    for (const c of d.children) {
+      const t = c.tagName;
+      if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+      c.setAttribute('data-deck-active', '');
+    }
+  }
+  try {
+    const sweep = () => {
+      for (const a of document.getAnimations()) {
+        try { a.finish(); } catch (e) {
+          try { a.currentTime = (a.effect && a.effect.getComputedTiming().duration) || 0; a.pause(); } catch (e2) {}
+        }
+      }
+    };
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+  } catch (e) {}
+  setTimeout(() => { try { window.print(); } catch (e) {} }, 200);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deeptech Index — Home Directions</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#e9ecf2;color:#0d1422;font-family:"IBM Plex Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding:48px 32px 80px}
+  .head{max-width:1320px;margin:0 auto 40px}
+  .kick{font-family:"IBM Plex Mono";font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#1d4ed8;margin-bottom:14px}
+  h1{font-family:"Space Grotesk";font-weight:600;font-size:36px;letter-spacing:-.02em}
+  .head p{margin-top:12px;font-size:16px;color:#3d4860;max-width:64ch;line-height:1.6}
+  .grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  @media(max-width:1100px){.grid{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid #d7dded;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(13,20,34,.04)}
+  .card-top{padding:20px 22px;border-bottom:1px solid #eef1f6}
+  .tag{font-family:"IBM Plex Mono";font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#6b7793}
+  .card h2{font-family:"Space Grotesk";font-weight:600;font-size:22px;margin:8px 0 8px;letter-spacing:-.01em}
+  .card p{font-size:13.5px;color:#3d4860;line-height:1.55}
+  .traits{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+  .traits span{font-family:"IBM Plex Mono";font-size:11px;color:#1d4ed8;background:#eaf0fb;padding:4px 9px;border-radius:5px}
+  .preview{position:relative;height:440px;overflow:hidden;background:#f6f8fb;border-top:1px solid #eef1f6;cursor:pointer}
+  .preview iframe{position:absolute;top:0;left:0;width:1280px;height:1760px;border:0;transform:scale(.355);transform-origin:top left;pointer-events:none}
+  .preview .veil{position:absolute;inset:0;z-index:3}
+  .card-foot{padding:16px 22px;display:flex;gap:10px;border-top:1px solid #eef1f6}
+  .btn{flex:1;text-align:center;font-family:"Space Grotesk";font-weight:600;font-size:14px;padding:12px;border-radius:9px;text-decoration:none;transition:.15s}
+  .btn-open{background:#163e8c;color:#fff}
+  .btn-open:hover{background:#0f2f70}
+  .note{max-width:1320px;margin:34px auto 0;font-size:13px;color:#6b7793;font-family:"IBM Plex Mono"}
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="kick">Deeptech Index · home-page directions</div>
+    <h1>Three directions for the same data</h1>
+    <p>Each is a fully working home page — live interactive map, continent filter, and sortable rankings — built on the real 26-country dataset. Same content, three visual languages. Click any preview to open it full-screen, then tell me which to take forward (you can also mix elements across them).</p>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-top">
+        <div class="tag">Direction A</div>
+        <h2>Atlas</h2>
+        <p>Clean, editorial, institutional — think a modern think-tank report. Generous whitespace, restrained blue, a colour-coded data table.</p>
+        <div class="traits"><span>light</span><span>editorial</span><span>calm</span><span>heatmap table</span></div>
+      </div>
+      <a class="preview" href="Home — A Atlas.html"><div class="veil"></div><iframe src="Home — A Atlas.html" scrolling="no" loading="lazy"></iframe></a>
+      <div class="card-foot"><a class="btn btn-open" href="Home — A Atlas.html">Open Atlas →</a></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="tag">Direction B</div>
+        <h2>Signal</h2>
+        <p>Dark, futuristic, data-terminal energy — glowing map, monospace readouts, a “live panel” feel. The most overtly deeptech.</p>
+        <div class="traits"><span>dark</span><span>futuristic</span><span>glow</span><span>terminal</span></div>
+      </div>
+      <a class="preview" href="Home — B Signal.html"><div class="veil"></div><iframe src="Home — B Signal.html" scrolling="no" loading="lazy"></iframe></a>
+      <div class="card-foot"><a class="btn btn-open" href="Home — B Signal.html">Open Signal →</a></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="tag">Direction C</div>
+        <h2>Lattice</h2>
+        <p>Bold, structural, data-journalism — heavy type, hard 2px rules, oversized rank numerals and a league table with score bars.</p>
+        <div class="traits"><span>light</span><span>bold</span><span>structural</span><span>league table</span></div>
+      </div>
+      <a class="preview" href="Home — C Lattice.html"><div class="veil"></div><iframe src="Home — C Lattice.html" scrolling="no" loading="lazy"></iframe></a>
+      <div class="card-foot"><a class="btn btn-open" href="Home — C Lattice.html">Open Lattice →</a></div>
+    </div>
+  </div>
+
+  <p class="note">Next: once you pick a direction (or a blend), I'll build out country profile pages and the full compare tool — bars, radar and table views.</p>
+</body>
+</html>

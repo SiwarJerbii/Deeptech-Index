@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Compare — Deeptech Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/atlas.css" />
+<style>
+  .page-head{padding:30px 0 24px;border-bottom:1px solid var(--line)}
+  .page-head .sec-tag{display:block;margin-bottom:12px}
+  .page-head h1{font-family:"Space Grotesk";font-weight:600;font-size:38px;letter-spacing:-.025em}
+  .page-head p{margin-top:10px;font-size:15px;color:var(--ink-2);max-width:64ch;line-height:1.6}
+
+  .compare-layout{display:grid;grid-template-columns:300px 1fr;gap:34px;padding:30px 0 40px;align-items:start}
+  @media(max-width:980px){.compare-layout{grid-template-columns:1fr}}
+
+  /* CONTROL PANEL */
+  .panel{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:0;position:sticky;top:88px;overflow:hidden}
+  .panel-sec{padding:20px 20px;border-bottom:1px solid var(--line-2)}
+  .panel-sec:last-child{border-bottom:none}
+  .panel-sec h3{font-family:"IBM Plex Mono";font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+  .panel-sec h3 .cnt{color:var(--blue);font-weight:500}
+
+  .seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--bg)}
+  .seg button{flex:1;font-family:"IBM Plex Sans";font-size:12.5px;font-weight:600;color:var(--ink-2);background:transparent;border:none;padding:9px 4px;cursor:pointer;transition:.12s;border-right:1px solid var(--line)}
+  .seg button:last-child{border-right:none}
+  .seg button[aria-pressed="true"]{background:var(--blue);color:#fff}
+
+  .country-search input{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-family:"IBM Plex Sans";font-size:13px;color:var(--ink);background:var(--bg);margin-bottom:10px}
+  .country-search input:focus{outline:none;border-color:var(--blue)}
+  .clist{max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;margin:0 -6px;padding:0 6px}
+  .crow{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;cursor:pointer;transition:background .1s}
+  .crow:hover{background:var(--blue-soft)}
+  .crow img{width:22px;border-radius:3px;box-shadow:0 0 0 1px rgba(13,20,34,.08)}
+  .crow .nm{flex:1;font-size:13.5px;font-weight:500}
+  .crow .rk{font-family:"IBM Plex Mono";font-size:11px;color:var(--ink-3)}
+  .crow .chk{width:18px;height:18px;border:1.5px solid var(--line);border-radius:5px;flex:none;display:grid;place-items:center;transition:.12s}
+  .crow[aria-selected="true"] .chk{background:var(--sel,#1d4ed8);border-color:var(--sel,#1d4ed8)}
+  .crow[aria-selected="true"] .chk svg{opacity:1}
+  .crow .chk svg{width:11px;height:11px;color:#fff;opacity:0}
+  .crow.disabled{opacity:.4;pointer-events:none}
+
+  .selected-chips{display:flex;flex-wrap:wrap;gap:7px}
+  .selchip{display:flex;align-items:center;gap:7px;padding:5px 8px 5px 6px;border-radius:8px;font-size:12.5px;font-weight:500;color:#fff}
+  .selchip img{width:18px;border-radius:2px}
+  .selchip button{background:rgba(255,255,255,.25);border:none;color:#fff;width:16px;height:16px;border-radius:4px;cursor:pointer;font-size:11px;line-height:1;display:grid;place-items:center}
+
+  .metric-mode{margin-bottom:12px}
+  .mlist{max-height:300px;overflow-y:auto;margin:0 -6px;padding:0 6px}
+  .mgroup-h{font-family:"IBM Plex Mono";font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);padding:12px 4px 6px;display:flex;justify-content:space-between;align-items:center}
+  .mgroup-h .sel-all{font-family:"IBM Plex Sans";text-transform:none;letter-spacing:0;color:var(--ink-3);cursor:pointer;font-size:11px;font-weight:500}
+  .mgroup-h .sel-all:hover{color:var(--blue)}
+  .mrow{display:flex;align-items:center;gap:9px;padding:6px 6px;border-radius:7px;cursor:pointer;font-size:12.5px}
+  .mrow:hover{background:var(--blue-soft)}
+  .mrow .chk{width:16px;height:16px;border:1.5px solid var(--line);border-radius:5px;flex:none;display:grid;place-items:center}
+  .mrow[aria-selected="true"] .chk{background:var(--blue);border-color:var(--blue)}
+  .mrow .chk svg{width:10px;height:10px;color:#fff;opacity:0}
+  .mrow[aria-selected="true"] .chk svg{opacity:1}
+  .mrow .src{margin-left:auto;font-family:"IBM Plex Mono";font-size:10px;color:var(--ink-3)}
+
+  /* RESULTS */
+  .results{min-height:400px}
+  .results-bar{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+  .view-seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--panel)}
+  .view-seg button{display:flex;align-items:center;gap:7px;font-family:"IBM Plex Sans";font-size:13px;font-weight:600;color:var(--ink-2);background:transparent;border:none;padding:9px 16px;cursor:pointer;border-right:1px solid var(--line);transition:.12s}
+  .view-seg button:last-child{border-right:none}
+  .view-seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+  .view-seg button svg{width:15px;height:15px}
+  .results-bar .spacer{flex:1}
+  .results-bar .meta{font-family:"IBM Plex Mono";font-size:12px;color:var(--ink-3)}
+
+  .result-card{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:26px}
+  .result-title{font-family:"Space Grotesk";font-weight:600;font-size:18px;margin-bottom:4px}
+  .result-sub{font-size:12.5px;color:var(--ink-3);margin-bottom:22px;font-family:"IBM Plex Mono"}
+  #chart{width:100%}
+  .empty{display:grid;place-items:center;text-align:center;padding:80px 20px;color:var(--ink-3)}
+  .empty svg{width:42px;height:42px;margin-bottom:16px;color:var(--line)}
+  .empty h4{font-family:"Space Grotesk";font-weight:600;font-size:18px;color:var(--ink-2);margin-bottom:6px}
+  .empty p{font-size:13.5px;max-width:36ch}
+
+  /* legend */
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:18px;justify-content:center}
+  .legend .li{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+  .legend .li img{width:20px;border-radius:3px}
+  .legend .sw{width:14px;height:14px;border-radius:4px}
+
+  /* compare table */
+  .ctable{width:100%;border-collapse:collapse;font-size:13.5px}
+  .ctable th,.ctable td{padding:12px 12px;border-bottom:1px solid var(--line-2);text-align:right}
+  .ctable thead th{font-family:"IBM Plex Mono";font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);font-weight:500;border-bottom:1px solid var(--line)}
+  .ctable th.left,.ctable td.left{text-align:left}
+  .ctable .metric-cell{font-weight:500}
+  .ctable .metric-cell small{display:block;font-family:"IBM Plex Mono";font-size:10.5px;color:var(--ink-3);font-weight:400}
+  .ctable td .z{font-family:"Space Grotesk";font-weight:600}
+  .ctable td .rk{font-family:"IBM Plex Mono";font-size:10.5px;color:var(--ink-3);display:block}
+  .ctable .ch{display:flex;align-items:center;gap:9px;justify-content:flex-end}
+  .ctable thead .ch img{width:22px;border-radius:3px}
+  .ctable tbody tr:hover{background:var(--blue-soft)}
+  .ctable .best{position:relative}
+  .ctable .best .z{color:var(--blue)}
+
+  .quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+  .quick button{font-family:"IBM Plex Sans";font-size:11.5px;font-weight:500;color:var(--ink-2);background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:5px 11px;cursor:pointer;transition:.12s}
+  .quick button:hover{border-color:var(--blue);color:var(--blue)}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="brand-name">Deeptech Index <span>/ 2025</span></span>
+    </a>
+    <nav class="links">
+      <a href="index.html#overview">Overview</a>
+      <a href="index.html#mapsec">Map</a>
+      <a href="index.html#rankings">Rankings</a>
+      <a href="compare.html" class="active">Compare</a>
+      <a href="index.html#methodology">Methodology</a>
+    </nav>
+    <a class="nav-cta" href="index.html#rankings">All rankings</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="page-head">
+    <span class="sec-tag">Compare tool</span>
+    <h1>Compare countries head-to-head</h1>
+    <p>Select up to six countries and choose what to measure — the six pillars, or drill into any individual indicator. Switch between bar, radar and table views to read the data different ways.</p>
+  </div>
+
+  <div class="compare-layout">
+    <!-- CONTROL PANEL -->
+    <aside class="panel">
+      <div class="panel-sec">
+        <h3>Countries <span class="cnt" id="cc-count">0 / 6</span></h3>
+        <div class="selected-chips" id="sel-chips" style="margin-bottom:12px"></div>
+        <div class="quick" style="margin-bottom:12px">
+          <button data-quick="topEu">Top Europe</button>
+          <button data-quick="topAf">Top Africa</button>
+          <button data-quick="clear">Clear</button>
+        </div>
+        <div class="country-search"><input id="csearch" type="text" placeholder="Search countries…" /></div>
+        <div class="clist" id="clist"></div>
+      </div>
+
+      <div class="panel-sec">
+        <h3>Measure by</h3>
+        <div class="seg metric-mode" id="mode-seg">
+          <button data-mode="pillars" aria-pressed="true">Pillars</button>
+          <button data-mode="indicators">Indicators</button>
+        </div>
+        <div class="mlist" id="mlist"></div>
+      </div>
+    </aside>
+
+    <!-- RESULTS -->
+    <section class="results">
+      <div class="results-bar">
+        <div class="view-seg" id="view-seg">
+          <button data-view="bars" aria-pressed="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Bars</button>
+          <button data-view="radar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 6.5-3.4 10.5H6.4L3 8.5z"/><path d="M12 7l4.5 3.2-1.7 5.3H9.2L7.5 10.2z"/></svg>Radar</button>
+          <button data-view="table">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18v14H3zM3 10h18M3 15h18M9 5v14"/></svg>Table</button>
+        </div>
+        <div class="spacer"></div>
+        <div class="meta" id="results-meta"></div>
+      </div>
+      <div class="result-card" id="result-card"></div>
+    </section>
+  </div>
+</main>
+
+<footer><div class="wrap">
+  <div>Deeptech Attractiveness Index · 2025</div>
+  <div><a href="index.html#methodology">Methodology</a> · all values are z-scores (panel mean = 0)</div>
+</div></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="assets/data.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/compare.js"></script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deeptech Index — Lattice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<style>
+  :root{
+    --bg:#eaeef5; --panel:#ffffff; --ink:#0a0f1a; --ink-2:#39445c; --ink-3:#6b7793;
+    --line:#d7dded; --line-2:#e7ebf3;
+    --blue:#1d4ed8; --blue-deep:#12317a; --blue-bright:#2563eb; --blue-soft:#dde7fb;
+    --max:1280px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 28px}
+
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(234,238,245,.85);backdrop-filter:blur(12px);border-bottom:2px solid var(--ink)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand-mark{width:26px;height:26px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px}
+  .brand-mark i{background:var(--blue);opacity:.25}
+  .brand-mark i:nth-child(1),.brand-mark i:nth-child(5),.brand-mark i:nth-child(9){opacity:1}
+  .brand-mark i:nth-child(3),.brand-mark i:nth-child(7){opacity:.6}
+  .brand-name{font-family:"Space Grotesk";font-weight:700;font-size:16px;letter-spacing:-.01em}
+  .brand-name span{color:var(--ink-3);font-weight:400}
+  nav.links{display:flex;gap:26px}
+  nav.links a{font-family:"Space Grotesk";font-size:14px;font-weight:500;color:var(--ink-2);transition:.15s}
+  nav.links a:hover{color:var(--blue)}
+  .nav-cta{font-family:"Space Grotesk";font-size:13px;font-weight:600;color:#fff;background:var(--ink);padding:9px 16px}
+
+  /* HERO */
+  .hero{padding:64px 0 0}
+  .hero-top{display:grid;grid-template-columns:1.5fr 1fr;gap:52px;align-items:start;padding-bottom:48px}
+  .kicker{font-family:"IBM Plex Mono";font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:500;margin-bottom:20px}
+  h1.hero-title{font-family:"Space Grotesk";font-weight:700;font-size:clamp(44px,6vw,82px);line-height:.96;letter-spacing:-.035em;text-transform:none}
+  h1.hero-title .blk{background:var(--blue);color:#fff;padding:0 .12em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+  .hero-lede{margin-top:26px;font-size:18px;line-height:1.6;color:var(--ink-2);max-width:46ch}
+  .hero-lede b{color:var(--ink);font-weight:600}
+  .hero-actions{margin-top:30px;display:flex;gap:12px}
+  .btn{font-family:"Space Grotesk";font-size:14px;font-weight:600;padding:13px 22px;border:2px solid var(--ink);cursor:pointer;transition:.15s;background:transparent;color:var(--ink)}
+  .btn-primary{background:var(--ink);color:#fff}
+  .btn-primary:hover{background:var(--blue);border-color:var(--blue)}
+  .btn-ghost:hover{background:var(--ink);color:#fff}
+
+  .podium{border:2px solid var(--ink);background:var(--panel)}
+  .podium-h{font-family:"IBM Plex Mono";font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);padding:13px 16px;border-bottom:1px solid var(--line)}
+  .prow{display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:13px;padding:14px 16px;border-bottom:1px solid var(--line-2)}
+  .prow:last-child{border-bottom:none}
+  .prow .pr{font-family:"Space Grotesk";font-weight:700;font-size:30px;line-height:1;color:var(--blue);width:38px;letter-spacing:-.03em}
+  .prow img{width:30px;border-radius:3px;box-shadow:0 0 0 1px var(--line)}
+  .prow .pn{font-family:"Space Grotesk";font-weight:600;font-size:15px}
+  .prow .pc{font-family:"IBM Plex Mono";font-size:10.5px;color:var(--ink-3)}
+  .prow .ps{font-family:"Space Grotesk";font-weight:700;font-size:18px}
+
+  /* DEFINITION BAND */
+  .defband{border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);background:var(--ink);color:#fff}
+  .defband .wrap{display:grid;grid-template-columns:200px 1fr;gap:40px;padding:36px 28px;align-items:start}
+  .defband h3{font-family:"IBM Plex Mono";font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue-bright)}
+  .defband p{font-size:19px;line-height:1.5;font-family:"Space Grotesk";font-weight:400;color:#dfe6f5}
+  .defband p b{color:#fff;font-weight:600}
+  .defband .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .defband .tags span{font-family:"IBM Plex Mono";font-size:12px;color:#bcd0fb;border:1px solid #2a3556;padding:5px 11px}
+
+  /* STAT STRIP */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid var(--ink)}
+  .stat{padding:26px 24px;border-right:1px solid var(--line);background:var(--panel)}
+  .stat:last-child{border-right:none}
+  .stat .num{font-family:"Space Grotesk";font-weight:700;font-size:46px;letter-spacing:-.03em;line-height:1;color:var(--blue)}
+  .stat .lbl{margin-top:8px;font-size:12.5px;color:var(--ink-3);font-family:"IBM Plex Mono"}
+
+  .section{padding:60px 0}
+  .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:30px}
+  .sec-head .n{font-family:"Space Grotesk";font-weight:700;font-size:18px;color:var(--blue)}
+  .sec-head h2{font-family:"Space Grotesk";font-weight:700;font-size:34px;letter-spacing:-.025em}
+  .sec-head p{font-size:14.5px;color:var(--ink-2);margin-left:auto;max-width:38ch;text-align:right}
+
+  .pillars{display:grid;grid-template-columns:repeat(6,1fr);border:2px solid var(--ink);background:var(--ink)}
+  .pcell{background:var(--panel);padding:22px 16px;border-right:1px solid var(--line);transition:.15s}
+  .pcell:last-child{border-right:none}
+  .pcell:hover{background:var(--blue);color:#fff}
+  .pcell:hover .pnum,.pcell:hover p{color:rgba(255,255,255,.85)}
+  .pcell .pnum{font-family:"Space Grotesk";font-weight:700;font-size:22px;color:var(--blue);letter-spacing:-.02em}
+  .pcell h4{font-family:"Space Grotesk";font-size:15px;font-weight:600;margin:16px 0 8px;line-height:1.1}
+  .pcell p{font-size:12px;color:var(--ink-3);line-height:1.45}
+
+  /* MAP */
+  .map-layout{display:grid;grid-template-columns:1fr 300px;gap:36px;align-items:stretch}
+  .map-frame{border:2px solid var(--ink);background:var(--panel);position:relative;padding:14px}
+  .map-frame::before,.map-frame::after{content:"";position:absolute;width:14px;height:14px;border:2px solid var(--blue)}
+  .map-frame::before{top:6px;left:6px;border-right:none;border-bottom:none}
+  .map-frame::after{bottom:6px;right:6px;border-left:none;border-top:none}
+  #mapviz{width:100%;height:540px}
+  .dtmap-tip{background:#0a0f1a;color:#fff;border-radius:0;padding:13px 15px;box-shadow:8px 8px 0 rgba(29,78,216,.25);display:flex;gap:12px;align-items:flex-start;min-width:185px;border:1px solid #2a3556}
+  .dtmap-tip-name{font-family:"Space Grotesk";font-weight:700;font-size:15px}
+  .dtmap-tip-meta{display:flex;flex-direction:column;gap:1px;margin-top:5px}
+  .dtmap-tip-meta span{font-size:11px;color:#9fb0cc;font-family:"IBM Plex Mono"}
+  .dtmap-tip-score{margin-top:9px;font-family:"Space Grotesk";font-weight:700;font-size:22px;color:#7da6f5;display:flex;align-items:baseline;gap:6px}
+  .dtmap-tip-score span{font-size:10px;font-weight:400;color:#9fb0cc;font-family:"IBM Plex Mono";text-transform:uppercase;letter-spacing:.08em}
+  .map-aside{display:flex;flex-direction:column;justify-content:center;gap:22px}
+  .map-aside h3{font-family:"Space Grotesk";font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .map-aside p{font-size:14px;color:var(--ink-2);line-height:1.6}
+  .legend{border:2px solid var(--ink);background:var(--panel);padding:18px}
+  .legend .lt{font-family:"IBM Plex Mono";font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:12px}
+  .legend-bar{height:14px;background:linear-gradient(90deg,#dce7fb,#12317a)}
+  .legend-scale{display:flex;justify-content:space-between;margin-top:7px;font-family:"IBM Plex Mono";font-size:11px;color:var(--ink-3)}
+  .legend-rows{margin-top:15px;display:flex;flex-direction:column;gap:8px}
+  .legend-row{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-2)}
+  .legend-row .sw{width:13px;height:13px;flex:none}
+
+  /* TABLE — league/bars */
+  .filters{display:flex;align-items:center;gap:0;margin-bottom:18px;border:2px solid var(--ink);width:fit-content}
+  .chip{font-family:"Space Grotesk";font-size:13.5px;font-weight:600;color:var(--ink-2);background:var(--panel);padding:10px 20px;cursor:pointer;transition:.15s;border-right:1px solid var(--line)}
+  .chip:last-child{border-right:none}
+  .chip[aria-selected="true"]{background:var(--ink);color:#fff}
+  .chip:hover:not([aria-selected="true"]){background:var(--blue-soft)}
+  .filters-row{display:flex;align-items:center;gap:18px;margin-bottom:18px}
+  .filters-row .note{font-size:12.5px;color:var(--ink-3);font-family:"IBM Plex Mono";margin-left:auto}
+  .table-card{border:2px solid var(--ink);background:var(--panel)}
+  table{width:100%;border-collapse:collapse}
+  thead th{font-family:"IBM Plex Mono";font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);font-weight:500;text-align:right;padding:14px 9px;border-bottom:2px solid var(--ink);white-space:nowrap;cursor:pointer}
+  thead th.left{text-align:left}
+  thead th:hover,thead th[data-active="true"]{color:var(--blue)}
+  tbody td{padding:0;border-bottom:1px solid var(--line-2);font-size:14px}
+  tbody tr{cursor:pointer;transition:background .12s}
+  tbody tr:hover{background:var(--blue-soft)}
+  tbody tr:last-child td{border-bottom:none}
+  .c-rank{padding:12px 9px;font-family:"Space Grotesk";font-weight:700;color:var(--ink);width:60px;font-size:22px;letter-spacing:-.02em}
+  .c-country{padding:12px 9px;display:flex;align-items:center;gap:11px;font-weight:600;font-family:"Space Grotesk"}
+  .c-country .fl{display:flex}
+  .c-country .fl img{width:27px;height:auto;border-radius:3px;box-shadow:0 0 0 1px var(--line)}
+  .c-country .ct{font-size:11px;color:var(--ink-3);font-family:"IBM Plex Mono";font-weight:400}
+  .c-bar{padding:12px 9px}
+  .c-bar .barwrap{display:inline-block;width:calc(100% - 52px);height:11px;background:var(--line-2);vertical-align:middle;margin-right:9px}
+  .c-bar .bar{display:block;height:100%;background:var(--blue)}
+  .c-bar .barval{font-family:"Space Grotesk";font-weight:700;font-size:14px;width:44px;display:inline-block;text-align:right;vertical-align:middle}
+  .heat-cell{text-align:center}
+  .heat-cell .dot{display:inline-block;width:24px;height:24px;border-radius:4px}
+
+  footer{padding:46px 0 60px;border-top:2px solid var(--ink);color:var(--ink-3);font-size:12.5px;font-family:"IBM Plex Mono"}
+  footer .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  @media(max-width:980px){.hero-top{grid-template-columns:1fr}.map-layout{grid-template-columns:1fr}.pillars{grid-template-columns:repeat(3,1fr)}.stats{grid-template-columns:repeat(2,1fr)}.defband .wrap{grid-template-columns:1fr}nav.links{display:none}.sec-head{flex-wrap:wrap}.sec-head p{margin-left:0;text-align:left}}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <span class="brand-mark"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="brand-name">Deeptech Index <span>/25</span></span>
+    </a>
+    <nav class="links">
+      <a href="#overview">Overview</a><a href="#mapsec">Map</a><a href="#rankings">Rankings</a><a href="#">Compare</a><a href="#">Methodology</a>
+    </nav>
+    <a class="nav-cta" href="#rankings">Explore →</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" id="overview">
+    <div class="wrap">
+      <div class="hero-top">
+        <div>
+          <div class="kicker">Deeptech Attractiveness Index · 26 countries · 2025</div>
+          <h1 class="hero-title">Who can <span class="blk">build</span> the hard tech of the next decade?</h1>
+          <p class="hero-lede">A composite benchmark ranking <b>26 countries across Europe and Africa</b> on their capacity to invent, fund and scale deeptech — measured across six pillars.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#rankings">See the rankings</a>
+            <a class="btn btn-ghost" href="#mapsec">Open the map</a>
+          </div>
+        </div>
+        <div class="podium">
+          <div class="podium-h">Top of the index</div>
+          <div id="podium"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="defband">
+    <div class="wrap">
+      <h3>What is deeptech?</h3>
+      <div>
+        <p>Ventures built on substantial <b>scientific or engineering advances</b> — where the core risk is whether the technology works, not whether a market exists.</p>
+        <div class="tags"><span>Quantum</span><span>Biotech</span><span>Semiconductors</span><span>Robotics</span><span>Advanced materials</span><span>Climate hardware</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap"><div class="stats">
+    <div class="stat"><div class="num">26</div><div class="lbl">Countries benchmarked</div></div>
+    <div class="stat"><div class="num">6</div><div class="lbl">Weighted pillars</div></div>
+    <div class="stat"><div class="num">23</div><div class="lbl">Underlying indicators</div></div>
+    <div class="stat"><div class="num">2</div><div class="lbl">Continents · EU & Africa</div></div>
+  </div></div>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="sec-head"><span class="n">01</span><h2>Six pillars of readiness</h2><p>Equally-weighted, z-standardized so the panel average reads zero.</p></div>
+      <div class="pillars" id="pillars-grid"></div>
+    </div>
+  </section>
+
+  <section class="section" id="mapsec">
+    <div class="wrap">
+      <div class="sec-head"><span class="n">02</span><h2>The deeptech landscape</h2><p>Hover any country for its rank and score. Darker blue means stronger.</p></div>
+      <div class="map-layout">
+        <div class="map-frame"><div id="mapviz"></div></div>
+        <div class="map-aside">
+          <div><h3>A two-continent story</h3>
+            <p>European economies hold the top fifteen positions, led by research-dense, capital-rich states. African leaders cluster around the panel mean, with island and North-African economies setting the regional pace.</p></div>
+          <div class="legend">
+            <div class="lt">Index score</div><div class="legend-bar"></div>
+            <div class="legend-scale"><span id="lg-min">low</span><span id="lg-max">high</span></div>
+            <div class="legend-rows">
+              <div class="legend-row"><span class="sw" style="background:#12317a"></span> Leaders</div>
+              <div class="legend-row"><span class="sw" style="background:#5e84e0"></span> Mid-table</div>
+              <div class="legend-row"><span class="sw" style="background:#dce7fb"></span> Emerging</div>
+              <div class="legend-row"><span class="sw" style="background:#eceff4;border:1px solid #d7dded"></span> Not in panel</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="rankings">
+    <div class="wrap">
+      <div class="sec-head"><span class="n">03</span><h2>Full country rankings</h2><p>Filter by continent, sort by overall or any pillar. Click a country for its profile.</p></div>
+      <div class="filters-row">
+        <div class="filters">
+          <div class="chip" data-cont="all" aria-selected="true">All 26</div>
+          <div class="chip" data-cont="Europe">Europe</div>
+          <div class="chip" data-cont="Africa">Africa</div>
+        </div>
+        <span class="note">Click a header to sort →</span>
+      </div>
+      <div class="table-card"><table id="rank-table"></table></div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">
+  <div>Deeptech Attractiveness Index · 2025 — direction concept “Lattice”</div>
+  <div>Method: OECD/JRC composite handbook · z-standardized · 6 equal-weighted pillars</div>
+</div></footer>
+
+<script src="assets/data.js"></script>
+<script src="assets/map.js"></script>
+<script src="assets/render-common.js"></script>
+<script>
+  const THEME = { lowColor:'#dce7fb', highColor:'#12317a', contextFill:'#eceff4', contextStroke:'#d7dded', stroke:'#ffffff', variant:'bars', cellLow:'#dce7fb', cellHigh:'#12317a' };
+  DeeptechMap.render({
+    container:'#mapviz', lowColor:THEME.lowColor, highColor:THEME.highColor,
+    contextFill:THEME.contextFill, contextStroke:THEME.contextStroke, stroke:THEME.stroke, countryHref:null,
+    onReady:({min,max})=>{ document.getElementById('lg-min').textContent=min.toFixed(1); document.getElementById('lg-max').textContent='+'+max.toFixed(1); }
+  });
+  DTRender.pillars('#pillars-grid');
+  DTRender.table('#rank-table', THEME);
+  (function(){
+    const d=window.DEEPTECH_DATA.countries.slice().sort((a,b)=>a.composite.rankOverall-b.composite.rankOverall).slice(0,5);
+    document.getElementById('podium').innerHTML=d.map(c=>`
+      <div class="prow"><span class="pr">${c.composite.rankOverall}</span>
+      <img src="https://flagcdn.com/w40/${c.iso2.toLowerCase()}.png" alt="">
+      <span><span class="pn">${c.name}</span><br><span class="pc">${c.continent}</span></span>
+      <span class="ps">+${c.composite.score.toFixed(2)}</span></div>`).join('');
+  })();
+</script>
+</body>
+</html>
